@@ -21,7 +21,7 @@ def fortune():
         if data is None:
             return jsonify({"error": "Invalid JSON request"}), 400
         
-        #Accepting the user’s name and/or a question:
+        #Accepting the user’s name and/or a question:(extracting name and quest from json dict)
         name= data.get("name")
         question= data.get("question")
 
@@ -46,9 +46,9 @@ def fortune():
         if question:
             content += f"Question : {question}. "
 
-            # Call Groq and return the prophecy”
+            # Call Groq and return the prophecy
         response = groq_client.chat.completions.create(
-            model="groq/compound", 
+            model="llama-3.3-70b-versatile", 
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": content}
@@ -56,7 +56,7 @@ def fortune():
             temperature=0.8, 
             max_completion_tokens=200  
         )
-        prophecy = response.choices[0].message.content  
+        prophecy = response.choices[0].message.content 
         result = {
             "name": name if name else "None",
             "question": question if question else "No question",
@@ -68,4 +68,5 @@ def fortune():
         return jsonify({"error": str(e)}), 500
     
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
